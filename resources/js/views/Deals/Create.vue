@@ -3,7 +3,7 @@
         <div class="mb-3">
             <label>Enter Deal Name</label>
             <input type="text" v-model="deal_name" class="form-control" placeholder="Deal Name">
-            <div v-if="err.Deal_Name">{{ err.Deal_Name[1]}}</div>
+            <div class="text-danger" v-if="v$.deal_name.$invalid">{{ v$.deal_name.$silentErrors[0].$message }}</div>
         </div>
         <div class="mb-3">
             <label>Choose stage</label>
@@ -12,7 +12,7 @@
                     {{ stage.title }}
                 </option>
             </select>
-            <div v-if="err.Stage">{{err.Stage[1]}}</div>
+            <div class="text-danger" v-if="v$.stage.$invalid">{{ v$.stage.$silentErrors[0].$message }}</div>
         </div>
         <div>
             <input @click.prevent="store" type="submit" value="Submit" class="btn btn-primary">
@@ -22,20 +22,34 @@
 
 <script>
 import router from "../../router";
+import {useVuelidate} from '@vuelidate/core'
+import {required} from '@vuelidate/validators'
+
 
 export default {
     name: "Create",
+    setup() {
+        return {
+            v$: useVuelidate()
+        }
+    },
 
     data() {
         return {
             deal_name: null,
             stage: null,
             stages: null,
-            err: {}
         }
     },
     mounted() {
         this.getStages()
+    },
+
+    validations() {
+        return {
+            deal_name: {required},
+            stage: {required},
+        }
     },
 
     methods: {
@@ -53,7 +67,7 @@ export default {
                     router.push({name: 'deal.index'})
                 })
                 .catch(err => {
-                    this.err = err.response.data.errors
+                    console.log(err);
                 })
         }
     }
